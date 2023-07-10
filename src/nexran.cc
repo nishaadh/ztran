@@ -13,6 +13,11 @@
 #include "e2sm_kpm.h"
 #include "e2sm_zylinium.h"
 
+int TX_PKTS=0;
+int TOTAL_TX_PKTS=0;
+int COUNTER=0;
+
+
 namespace nexran {
 
 static void rmr_callback(
@@ -301,6 +306,13 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 	if (!policy)
 	    continue;
 
+
+
+
+//if the policy is false or null, the loop iteration is skipped using continue. 
+//Otherwise, the slice, policy, and new_share_factors values are assigned to their respective maps for further processing.
+
+
 	slices[slice_name] = slice;
 	policies[slice_name] = policy;
 	// placeholder until later iteration
@@ -449,8 +461,14 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 
 	}
     }
+
     // XXX: have to do a second time through the loop to actually set the
     // new share factors, sigh
+
+
+	int tx_pkts=0;
+	int total_tx_pkts=0;
+
     if (any_above_threshold) {
 	for (auto it = report->slices.begin(); it != report->slices.end(); ++it) {
 	    std::string slice_name = it->first;
@@ -467,8 +485,143 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 	    new_share_factors[slice_name] = ((float)slices_total / num_autoeq_slices - dl_bytes) / dl_bytes;
 	    mdclog_write(MDCLOG_DEBUG,"new proportional share factor (%s): %f",
 			 slice_name.c_str(),new_share_factors[slice_name]);
+
+
+
+
+		// if(COUNTER<10){
+
+		// uint64_t tx_pkts = report->slices[slice_name].tx_pkts;
+		// int total_tx_pkts=total_tx_pkts+tx_pkts;
+		// mdclog_write(MDCLOG_DEBUG,"FUCK SHIT");
+		// //total_tx_pkts.c_str());
+		// COUNTER++;
+		// }
+
+
+		// if(COUNTER==10){
+
+		// 	int avg_tx_pkts=total_tx_pkts/10;
+
+
+		// 	if(avg_tx_pkts>=757){
+
+		// 		//consider malicious
+		// 		new_share_factors[slice_name] = 0;
+	    // 		mdclog_write(MDCLOG_DEBUG,"new proportional share factor [MALICIOUS] (%s): %f",
+		// 	 	slice_name.c_str(),new_share_factors[slice_name]);
+
+
+
+
+		// 	}
+
+
+
+
+
+		// 	COUNTER=0;
+		// 	total_tx_pkts=0;
+		// }
+
+
+
+
 	}
     }
+
+for (auto it = report->slices.begin(); it != report->slices.end(); ++it) {
+	    std::string slice_name = it->first;
+	    uint64_t dl_bytes = report->slices[slice_name].dl_bytes;
+	    // if (policies.count(slice_name) == 0)
+		// continue;
+	    // ProportionalAllocationPolicy *policy = policies[slice_name];
+	    // if (!policy->isAutoEqualized())
+		// continue;
+
+	    // if (new_share_factors[slice_name] != 0.0f)
+		// continue;
+
+	    // new_share_factors[slice_name] = ((float)slices_total / num_autoeq_slices - dl_bytes) / dl_bytes;
+	    // mdclog_write(MDCLOG_DEBUG,"new proportional share factor (%s): %f",
+		// 	 slice_name.c_str(),new_share_factors[slice_name]);
+
+
+		
+
+
+		if(COUNTER<11){
+
+		uint64_t tx_pkts = report->slices[slice_name].tx_pkts;
+		int total_tx_pkts=total_tx_pkts+tx_pkts;
+		
+
+		mdclog_write(MDCLOG_INFO,"total tx_pkts: %d",
+			 total_tx_pkts);
+
+
+			 mdclog_write(MDCLOG_INFO,"COUNT: %d",
+			 COUNTER);
+		//total_tx_pkts.c_str());
+		COUNTER++;
+		}
+
+
+		if(COUNTER==11){
+
+			float avg_tx_pkts=total_tx_pkts/COUNTER;
+			mdclog_write(MDCLOG_INFO,"avg tx_pkts: %f",
+			 avg_tx_pkts);
+
+
+			if(avg_tx_pkts>=757){
+
+				//consider malicious
+				new_share_factors[slice_name] = 0;
+	    		mdclog_write(MDCLOG_DEBUG,"new proportional share factor [MALICIOUS] (%s): %f",
+			 	slice_name.c_str(),new_share_factors[slice_name]);
+
+
+
+
+			}
+
+
+
+
+
+			COUNTER=0;
+			total_tx_pkts=0;
+		}
+		
+}
+
+
+
+
+
+
+
+	// for (auto it = report->slices.begin(); it != report->slices.end(); ++it){
+	// 	std::string slice_name = it->first;
+	//     uint64_t tx_pkts = report->slices[slice_name].tx_pkts;
+
+
+	// 	if (tx_pkts<)
+
+
+	// 	new_share_factors[slice_name] = ((float)slices_total / num_autoeq_slices - dl_bytes) / dl_bytes;
+	//     mdclog_write(MDCLOG_DEBUG,"new proportional share factor (%s): %f",
+
+
+
+
+	// }
+
+
+
+
+
 
     // Handle any updates; log either way.
     for (auto it = new_share_factors.begin(); it != new_share_factors.end(); ++it) {
