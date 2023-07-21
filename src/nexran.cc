@@ -1,10 +1,13 @@
 
 #include <chrono>
+#include <string>
 
 #include "mdclog/mdclog.h"
 #include "rmr/RIC_message_types.h"
 #include "ricxfcpp/message.hpp"
 #include "ricxfcpp/messenger.hpp"
+//#include "pistache/string_logger.h"
+//#include "pistache/tcp.h"
 
 #include "nexran.h"
 #include "e2ap.h"
@@ -12,11 +15,25 @@
 #include "e2sm_nexran.h"
 #include "e2sm_kpm.h"
 #include "e2sm_zylinium.h"
+#include "restserver.h"
+//#include "restserver.cc"
+
+using namespace std;
 
 int TX_PKTS=0;
-int TOTAL_TX_PKTS=0;
-int COUNTER=0;
+int TOTAL_TX_1=0;
+int TOTAL_TX_2=0;
+int COUNTER1=0;
+int COUNTER2=0;
+bool malicious=0;
+bool slicecheck=0;
+int tx_threshold = 130;
 
+std::string slice1 = "fast";
+std::string slice2 = "secure_slice";
+
+std::string ue1imsi = "NULL";
+std::string ue2imsi = "NULL";
 
 namespace nexran {
 
@@ -54,7 +71,7 @@ void App::handle_rmr_message(
     default:
 	mdclog_write(MDCLOG_WARN,"unsupported RMR message type %d",mtype);
 	return;
-    }
+    } 
 
     e2ap.handle_message(payload.get(),payload_len,subid,
 			std::string((char *)msg.Get_meid().get()),
@@ -164,6 +181,9 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
     }
 }
 
+/// @brief 
+/// @param kind 
+/// @return 
 bool App::handle(e2sm::kpm::KpmIndication *kind)
 {
     mdclog_write(MDCLOG_INFO,"KpmIndication: %s",
@@ -300,6 +320,7 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
     // Create local indexes.
     for (auto it = db[ResourceType::SliceResource].begin(); it != db[ResourceType::SliceResource].end(); ++it) {
 	std::string slice_name = it->first;
+
 	Slice *slice = (Slice *)it->second;
 	ProportionalAllocationPolicy *policy = \
 	    dynamic_cast<ProportionalAllocationPolicy *>(slice->getPolicy());
@@ -382,6 +403,7 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
     // Second, check if any slices should be newly throttled.
     for (auto it = slices.begin(); it != slices.end(); ++it) {
 	std::string slice_name = it->first;
+
 	Slice *slice = (Slice *)it->second;
 	ProportionalAllocationPolicy *policy = policies[slice_name];
 	if (!policy->isThrottled() || policy->isThrottling())
@@ -425,8 +447,10 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		any_above_threshold = true;
 		break;
 	    }
+
 	}
     }
+
 
     // Create the new share factors.
     if (any_above_threshold) {
@@ -465,9 +489,8 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
     // XXX: have to do a second time through the loop to actually set the
     // new share factors, sigh
 
-
-	int tx_pkts=0;
-	int total_tx_pkts=0;
+	//int tx_pkts=0;
+	//int total_tx_pkts=0;
 
     if (any_above_threshold) {
 	for (auto it = report->slices.begin(); it != report->slices.end(); ++it) {
@@ -480,147 +503,204 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		continue;
 
 	    if (new_share_factors[slice_name] != 0.0f)
+
 		continue;
 
 	    new_share_factors[slice_name] = ((float)slices_total / num_autoeq_slices - dl_bytes) / dl_bytes;
 	    mdclog_write(MDCLOG_DEBUG,"new proportional share factor (%s): %f",
 			 slice_name.c_str(),new_share_factors[slice_name]);
-
-
-
-
-		// if(COUNTER<10){
-
-		// uint64_t tx_pkts = report->slices[slice_name].tx_pkts;
-		// int total_tx_pkts=total_tx_pkts+tx_pkts;
-		// mdclog_write(MDCLOG_DEBUG,"FUCK SHIT");
-		// //total_tx_pkts.c_str());
-		// COUNTER++;
-		// }
-
-
-		// if(COUNTER==10){
-
-		// 	int avg_tx_pkts=total_tx_pkts/10;
-
-
-		// 	if(avg_tx_pkts>=757){
-
-		// 		//consider malicious
-		// 		new_share_factors[slice_name] = 0;
-	    // 		mdclog_write(MDCLOG_DEBUG,"new proportional share factor [MALICIOUS] (%s): %f",
-		// 	 	slice_name.c_str(),new_share_factors[slice_name]);
-
-
-
-
-		// 	}
-
-
-
-
-
-		// 	COUNTER=0;
-		// 	total_tx_pkts=0;
-		// }
-
-
-
-
+	
 	}
     }
 
-for (auto it = report->slices.begin(); it != report->slices.end(); ++it) {
-	    std::string slice_name = it->first;
-	    uint64_t dl_bytes = report->slices[slice_name].dl_bytes;
-	    // if (policies.count(slice_name) == 0)
-		// continue;
-	    // ProportionalAllocationPolicy *policy = policies[slice_name];
-	    // if (!policy->isAutoEqualized())
-		// continue;
-
-	    // if (new_share_factors[slice_name] != 0.0f)
-		// continue;
-
-	    // new_share_factors[slice_name] = ((float)slices_total / num_autoeq_slices - dl_bytes) / dl_bytes;
-	    // mdclog_write(MDCLOG_DEBUG,"new proportional share factor (%s): %f",
-		// 	 slice_name.c_str(),new_share_factors[slice_name]);
+//hsdbhbdfhjhbdgufhdjhjfsdhoiugjfidsjgoijsdfijgi
+//jkdsngjdfkgjfdskjgsd
+//djgjdfhjgkfdskgkdjsgk
+//dkjsnhgjdhufshsgusfdjg
+//kjdfkgsjfkgsdfkljfg
+//sdkgjfsdhjakhjks
+//fdjhsjghfdgjksdfkg
+//dsfjgjkdfshg sdjg
+//fsdkjgksdfkgfdg
 
 
-		
+
+for (auto it = report->ues.begin(); it != report->ues.end(); ++it) {
 
 
-		if(COUNTER<11){
+	    int ue_name = it->first;
+		mdclog_write(MDCLOG_INFO,"UE NAME '%d':",ue_name);
 
-		uint64_t tx_pkts = report->slices[slice_name].tx_pkts;
-		int total_tx_pkts=total_tx_pkts+tx_pkts;
-		
+		if(ue_name==70) 
+		{
+			//total the tx pkts for ue1
+			TOTAL_TX_1 = TOTAL_TX_1+ report->ues[ue_name].tx_pkts;
+			mdclog_write(MDCLOG_INFO, "Total tx_pkts '%d': %d",
+			ue_name, TOTAL_TX_1);
+			COUNTER1++;
+			mdclog_write(MDCLOG_INFO,"COUNT: %d",
+			COUNTER1);
 
-		mdclog_write(MDCLOG_INFO,"total tx_pkts: %d",
-			 total_tx_pkts);
-
-
-			 mdclog_write(MDCLOG_INFO,"COUNT: %d",
-			 COUNTER);
-		//total_tx_pkts.c_str());
-		COUNTER++;
 		}
 
+		else if(ue_name==71) 
+		{
+			TOTAL_TX_2 = TOTAL_TX_2 + report->ues[ue_name].tx_pkts;
+			mdclog_write(MDCLOG_INFO, "Total tx_pkts '%d': %d",
+			ue_name, TOTAL_TX_2);
+			COUNTER2++;
+			mdclog_write(MDCLOG_INFO,"COUNT: %d",
+			COUNTER2);
 
-		if(COUNTER==11){
+		}
 
-			float avg_tx_pkts=total_tx_pkts/COUNTER;
-			mdclog_write(MDCLOG_INFO,"avg tx_pkts: %f",
-			 avg_tx_pkts);
+		if(COUNTER1 == 10 || COUNTER2 == 10){
 
-
-			if(avg_tx_pkts>=757){
-
-				//consider malicious
-				new_share_factors[slice_name] = 0;
-	    		mdclog_write(MDCLOG_DEBUG,"new proportional share factor [MALICIOUS] (%s): %f",
-			 	slice_name.c_str(),new_share_factors[slice_name]);
-
-
-
-
+			
+			if (TOTAL_TX_1 > TOTAL_TX_2)
+			{
+				ue1imsi = "001010123456789";
+				ue2imsi = "001010123456780";
 			}
 
+			else
+			{
+				ue1imsi = "001010123456780";
+				ue2imsi = "001010123456789";
+			}
+
+			if (COUNTER1 == 10)
+			{	
+				float avg_tx_1=TOTAL_TX_1/10;
+				mdclog_write(MDCLOG_INFO,"Avg tx_pkts '%d': %f",
+				ue_name, avg_tx_1);
+
+				if(avg_tx_1 >= tx_threshold){
+
+					tx_threshold *= 10;
+
+					mdclog_write(MDCLOG_DEBUG, "UE1 imsi: %s", ue1imsi.c_str());
+					mdclog_write(MDCLOG_DEBUG, "UE2 imsi: %s", ue2imsi.c_str());
+
+					mdclog_write(MDCLOG_DEBUG,"UE[%d] found MALICIOUS",
+					ue_name);
+
+					AppError *ae = nullptr;
+
+					//delete slicing binding to UE
+
+					//need imsi and what slice the UE is bound to.
+
+					mdclog_write(MDCLOG_DEBUG,"UNBINDING START");
+					mutex.unlock();
+					unbind_ue_slice(ue1imsi,slice1,&ae);
+					mutex.lock();
+					mdclog_write(MDCLOG_DEBUG,"UNBINDING SUCCESS");
+
+					/*
+					mutex.unlock();
+					del(App::ResourceType::UeResource, ue1imsi, &ae);
+					mutex.lock(); */
+
+					/*rapidjson::Document d;
+    				d.Parse(request.body().c_str());
+					string writer == "imsi\":\"001010123456789\",\"tmsi\":\"\",\"crnti\":\"\",\"status\":{\"connected\":false}"
+					Ue *ue = Ue::create(d,&ae); */
+					
+					//mutex.unlock();
+					/*
+					// Create a JSON object that represents the UE. 
+					rapidjson::Document d; 
+					d.SetObject(); 
+					d.AddMember("imsi", rapidjson::Value().SetString("001010123456789"), d.GetAllocator());  */
+
+					// Call the postUE() method. 
+					//server.postUe(d, &ae);
+					//add(App::ResourceType::UeResource,ue,writer,&ae);
+					//mutex.lock();
+
+                    //slice create does not have a non REST way to create slices. For now just use curl to create an initial malicious slice
+
+					// Create a response object. 
+					/*
+
+					Pistache::Http::ResponseWriter response;
+					server.postUe(d, response); 
+					// Check the response code. 
+					if (response.status() != Pistache::Http::Code::OK) 
+					{ std::cerr << "Error: " << response.status() << std::endl; return 1; } 
+					// Check the response body. 
+					const std::string& body = response.body(); 
+					if (body != "UE created successfully.") 
+					{ std::cerr << "Error: unexpected response body: " << body << std::endl; return 1; }
+					
+					*/
+
+					mdclog_write(MDCLOG_DEBUG,"BINDING START");
+					//bind to malicious UE to secure slice
+					mutex.unlock();
+					bind_ue_slice(ue1imsi,slice2,&ae);
+					mutex.lock();
+					mdclog_write(MDCLOG_DEBUG,"BINDING SUCCESS");
+						//print something here telling us wht happened
+
+				}
+				TOTAL_TX_1 = 0;
+				COUNTER1 = 0;
+			}
+
+			else if(COUNTER2 == 10)
+			{	
+				float avg_tx_2=TOTAL_TX_2/10;
+				mdclog_write(MDCLOG_INFO,"Avg tx_pkts '%d': %f",
+				ue_name, avg_tx_2); 
+
+				if(avg_tx_2 >= tx_threshold)
+				{
+					tx_threshold *= 10;
+
+					mdclog_write(MDCLOG_DEBUG, "UE1 imsi: %s", ue1imsi.c_str());
+					mdclog_write(MDCLOG_DEBUG, "UE2 imsi: %s", ue2imsi.c_str());
+					mdclog_write(MDCLOG_DEBUG,"UE[%d] found MALICIOUS",
+					ue_name);
+			 		//slice_name.c_str(),new_share_factors[slice_name]);
+
+					AppError *ae = nullptr;
+
+					//delete slicing binding to UE
+
+					//need imsi and what slice the UE is bound to.
+					mdclog_write(MDCLOG_DEBUG,"UNBINDING START");
+					mutex.unlock();
+					unbind_ue_slice(ue2imsi,slice1,&ae);
+					mutex.lock();
+					mdclog_write(MDCLOG_DEBUG,"UNBINDING SUCCESS");
+
+                    //slice create does not have a non REST way to create slices. For now just use curl to create an initial malicious slice
 
 
+					//create secure slice
+					// string x="MALICIOUS";
+					// d=x.c_str();
+					// Slice *slice = Slice::create(d,&ae);
 
 
-			COUNTER=0;
-			total_tx_pkts=0;
+					mdclog_write(MDCLOG_DEBUG,"BINDING START");
+					//bind to malicious UE to secure slice
+					mutex.unlock();
+					bind_ue_slice(ue2imsi,slice2,&ae);
+					mutex.lock();
+					mdclog_write(MDCLOG_DEBUG,"BINDING SUCCESS");
+
+					//print something here
+
+				}				
+				TOTAL_TX_2 = 0;
+				COUNTER2 = 0;
+			}
+
 		}
-		
-}
-
-
-
-
-
-
-
-	// for (auto it = report->slices.begin(); it != report->slices.end(); ++it){
-	// 	std::string slice_name = it->first;
-	//     uint64_t tx_pkts = report->slices[slice_name].tx_pkts;
-
-
-	// 	if (tx_pkts<)
-
-
-	// 	new_share_factors[slice_name] = ((float)slices_total / num_autoeq_slices - dl_bytes) / dl_bytes;
-	//     mdclog_write(MDCLOG_DEBUG,"new proportional share factor (%s): %f",
-
-
-
-
-	// }
-
-
-
-
+	}
 
 
     // Handle any updates; log either way.
@@ -632,9 +712,13 @@ for (auto it = report->slices.begin(); it != report->slices.end(); ++it) {
 	ProportionalAllocationPolicy *policy = policies[slice_name];
 	int cshare = policy->getShare();
 	int nshare = std::min((int)(cshare + (cshare * it->second)),1024);
+	
 	if (nshare < 1 || nshare < 64)
+	{
 	    //nshare = 1;
 	    nshare = 64;
+	}
+
 	if (influxdb) {
 	    influxdb->write(influxdb::Point{"share"}
 		.addField("share", nshare)
@@ -706,7 +790,7 @@ bool App::handle(e2sm::zylinium::MaskStatusIndication *ind)
 	    .addField("ul_masked_bits", (long long int)ul_masked_bits)
 	    .addField("dl_available_bits", (long long int)dl_available_bits)
 	    .addField("ul_available_bits", (long long int)ul_available_bits)
-            .addTag("nodeb", rname.c_str()));
+        .addTag("nodeb", rname.c_str()));
     }
 
     return true;
@@ -1212,6 +1296,7 @@ bool App::bind_ue_slice(std::string& imsi,std::string& slice_name,
 			AppError **ae)
 {
     mutex.lock();
+
     if (db[App::ResourceType::SliceResource].count(slice_name) < 1) {
 	mutex.unlock();
 	if (ae) {
@@ -1221,6 +1306,7 @@ bool App::bind_ue_slice(std::string& imsi,std::string& slice_name,
 	}
 	return false;
     }
+
     if (db[App::ResourceType::UeResource].count(imsi) < 1) {
 	mutex.unlock();
 	if (ae) {
@@ -1230,10 +1316,16 @@ bool App::bind_ue_slice(std::string& imsi,std::string& slice_name,
 	}
 	return false;
     }
+
     Ue *ue = (Ue *)db[App::ResourceType::UeResource][imsi];
     Slice *slice = (Slice *)db[App::ResourceType::SliceResource][slice_name];
-	
+
+	//ue->bind_slice(slice_name);
+
+
     if (ue->is_bound() || !slice->bind_ue(ue)) {
+		if (ue->is_bound()){mdclog_write(MDCLOG_DEBUG,"first condition");}
+		if (!slice->bind_ue(ue)) {mdclog_write(MDCLOG_DEBUG,"second condition");}
 	mutex.unlock();
 	if (ae) {
 	    if (!*ae)
@@ -1242,6 +1334,7 @@ bool App::bind_ue_slice(std::string& imsi,std::string& slice_name,
 	}
 	return false;
     }
+
     ue->bind_slice(slice_name);
 
     e2sm::nexran::SliceUeBindRequest *sreq = \
@@ -1257,6 +1350,7 @@ bool App::bind_ue_slice(std::string& imsi,std::string& slice_name,
 
 	// Each request needs a different RequestId, so we have to
 	// re-encode each time.
+
 	std::shared_ptr<e2ap::ControlRequest> creq = std::make_shared<e2ap::ControlRequest>(
             e2ap.get_requestor_id(),e2ap.get_next_instance_id(),
 	    1,sreq,e2ap::CONTROL_REQUEST_ACK);
@@ -1266,7 +1360,7 @@ bool App::bind_ue_slice(std::string& imsi,std::string& slice_name,
 
     mutex.unlock();
 
-    mdclog_write(MDCLOG_DEBUG,"bound ue %s to nodeb %s",
+    mdclog_write(MDCLOG_DEBUG,"bound ue %s to slice %s",
 		 imsi.c_str(),slice_name.c_str());
 
     return true;
@@ -1275,16 +1369,22 @@ bool App::bind_ue_slice(std::string& imsi,std::string& slice_name,
 bool App::unbind_ue_slice(std::string& imsi,std::string& slice_name,
 			  AppError **ae)
 {
-    mutex.lock();
+	mutex.lock();
+
+	//creating ue to add one extra lien of code later -----> ue->unbind_slice();
+	Ue *ue = (Ue *)db[App::ResourceType::UeResource][imsi];
+
     if (db[App::ResourceType::SliceResource].count(slice_name) < 1) {
 	mutex.unlock();
 	if (ae) {
 	    if (!*ae)
 		*ae = new AppError(404);
 	    (*ae)->add(std::string("slice does not exist"));
+
 	}
 	return false;
     }
+
     if (db[App::ResourceType::UeResource].count(imsi) < 1) {
 	mutex.unlock();
 	if (ae) {
@@ -1298,6 +1398,7 @@ bool App::unbind_ue_slice(std::string& imsi,std::string& slice_name,
 
     if (!slice->unbind_ue(imsi)) {
 	mutex.unlock();
+
 	if (ae) {
 	    if (!*ae)
 		*ae = new AppError(404);
@@ -1326,9 +1427,11 @@ bool App::unbind_ue_slice(std::string& imsi,std::string& slice_name,
 	e2ap.send_control_request(creq,nodeb->getName());
     }
 
-    mutex.unlock();
+	//added this while modifying the code for intrusion detection
+	ue->unbind_slice();
 
-    mdclog_write(MDCLOG_DEBUG,"unbound ue %s from nodeb %s",
+    mutex.unlock();
+    mdclog_write(MDCLOG_DEBUG,"unbound ue %s from slice %s",
 		 imsi.c_str(),slice_name.c_str());
 
     return true;

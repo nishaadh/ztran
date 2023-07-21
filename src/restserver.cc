@@ -5,6 +5,9 @@
 #include "nexran.h"
 #include "version.h"
 #include "restserver.h"
+#include "config.h"
+
+//extern APP app;
 
 #define HANDLE_APP_ERROR(ae,default_code)				\
     do {								\
@@ -120,6 +123,8 @@ void RestServer::init(App *app_)
 		 app_->config[Config::ItemName::ADMIN_HOST]->s,
 		 app_->config[Config::ItemName::ADMIN_PORT]->i);
 }
+
+extern App app;
 
 void RestServer::start()
 {
@@ -499,7 +504,7 @@ void RestServer::postUe(
 	HANDLE_APP_ERROR(ae,Pistache::Http::Code::Bad_Request);
 	return;
     }
-
+    //mdclog_write(MDCLOG_DEBUG,"Writer string:  '%s', D IS THIS: '%s'", sb.GetString(), d.GetString());
     response.send(Pistache::Http::Code::Created,sb.GetString());
 }
 
