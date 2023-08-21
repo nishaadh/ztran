@@ -127,7 +127,6 @@ Terminal 5: Start the gnuradio flowgraph
 
 .. code-block:: bash
 
-    cd main-file-repo
     python3 2UE.py
 
 Terminal 6 & 7: Set up iperf3 test on the server side
