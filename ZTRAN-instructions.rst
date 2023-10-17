@@ -7,13 +7,13 @@ The xapp has a southbound interface to the RIC where it can send commands down t
 Setup 
 =====
 
-Install Near-Real Time RIC
+1. Install Near-Real Time RIC
 
-Follow instructions on the OAIC documentation: https://openaicellular.github.io/oaic/oran_installation.html
+	Follow instructions on the OAIC documentation: https://openaicellular.github.io/oaic/oran_installation.html
 
-Next install all the required dependencies, ZMQ, UHD and asn1c Compiler
+2. Next install all the required dependencies, ZMQ, UHD and asn1c Compiler
 
-Follow instructions on OAIC documentation: https://openaicellular.github.io/oaic/srsRAN_installation.html
+	Follow instructions on OAIC documentation: https://openaicellular.github.io/oaic/srsRAN_installation.html
 
 First we need to clone down the srslte modified with e2
 
