@@ -53,14 +53,14 @@ Under the oaic directory, run the following commands
 
 .. code-block:: bash
 
-    git clone https://github.com/joshuamoorexyz/secure-slicing //need to maybe change later 
+    git clone https://github.com/nishaadh/ztran.git
 
 Now we are going to build the xapp from the dockerfile
 
 .. code-block:: bash
 
     cd ~/oaic/secure-slicing   
-    sudo docker build . -t xApp-registry.local:5008/secure-slicing:0.1.0
+    sudo docker build . -t xApp-registry.local:5008/ztran:0.1.0
 
 Paste the following in the ``nexran-onboard.url`` file. Substitue the ``<machine_ip_addr>`` with the IP address of your machine. You can find this out through ``ifconfig``.
 
@@ -77,7 +77,7 @@ Running the ZTRAN xApp
 
 .. code-block:: bash
 
-    sudo kubectl -n ricxapp rollout restart deployment ricxapp-secure-slicing
+    sudo kubectl -n ricxapp rollout restart deployment ricxapp-ztran
 
 Terminal 1: Start the Core Network/Add Ues to Network Namespace
 
