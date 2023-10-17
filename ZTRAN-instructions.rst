@@ -53,9 +53,13 @@ Under the oaic directory, run the following commands
 
 Now we are going to build the xapp from the dockerfile
 
+Before deploying the xApp, we first need to host the config file (xApp descriptor) provided in the web server we have created already. 
+Follow the instructions to create a Web server from here:  https://openaicellular.github.io/oaic/xapp_deployment.html
+You need to follow Configuring the Nginx Server and Hosting Config Files portion of the documentation. The config file is located within the repository you just cloned.
+
 .. code-block:: bash
 
-    cd ~/oaic/secure-slicing   
+    cd ~/oaic/ztran  
     sudo docker build . -t xApp-registry.local:5008/ztran:0.1.0
 
 Paste the following in the ``nexran-onboard.url`` file. Substitue the ``<machine_ip_addr>`` with the IP address of your machine. You can find this out through ``ifconfig``.
