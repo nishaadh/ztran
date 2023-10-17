@@ -55,6 +55,7 @@ Now we are going to build the xapp from the dockerfile
 
 Before deploying the xApp, we first need to host the config file (xApp descriptor) provided in the web server we have created already. 
 Follow the instructions to create a Web server from here:  https://openaicellular.github.io/oaic/xapp_deployment.html
+
 You need to follow Configuring the Nginx Server and Hosting Config Files portion of the documentation. The config file is located within the repository you just cloned.
 
 .. code-block:: bash
