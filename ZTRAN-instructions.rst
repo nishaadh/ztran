@@ -2,22 +2,18 @@
 Running the ZTRAN Xapp 
 =======================
 
-Overview
-========
-
-The xapp is deployed in the near real time ric (3rd party APP). This deployed xapp then performs its functionality which in this case is RAN slicing. 
-
-.. image:: nexran_xapp_diagram.png
-   :width: 80%
-   :alt: Nexran Xapp diagram
-
-
-Powder’s Nexran xapp implements ran slicing by sending instructions to RAN nodes, that performs custom resource allocation and we bind UE’s to those slices of allocated resources.
-
 The xapp has a southbound interface to the RIC where it can send commands down to the nodes and a northbound interface where high level commands can be issued by the user.
 
 Setup 
 =====
+
+Install Near-Real Time RIC
+
+Follow instructions on the OAIC documentation: https://openaicellular.github.io/oaic/oran_installation.html
+
+Next install all the required dependencies, ZMQ, UHD and asn1c Compiler
+
+Follow instructions on OAIC documentation: https://openaicellular.github.io/oaic/srsRAN_installation.html
 
 First we need to clone down the srslte modified with e2
 
