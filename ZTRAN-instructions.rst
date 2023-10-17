@@ -172,7 +172,7 @@ Add another terminal to print the logs
 
 .. code-block:: bash
 
-    sudo kubectl logs -f -n ricxapp -l app=ricxapp-secure-slicing
+    sudo kubectl logs -f -n ricxapp -l app=ricxapp-ztran
 
 .. warning::
     Before running the rest of the commands, detach two of the terminals with the iperf3 test running for 2 UEs to observe the downlink traffic.
