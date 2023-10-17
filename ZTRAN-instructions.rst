@@ -15,7 +15,7 @@ Setup
 
 	Follow instructions on OAIC documentation: https://openaicellular.github.io/oaic/srsRAN_installation.html
 
-First we need to clone down the srslte modified with e2
+3. Clone down the srslte modified with e2
 
 .. code-block:: bash
 
@@ -67,7 +67,7 @@ Paste the following in the ``nexran-onboard.url`` file. Substitue the ``<machine
 
 .. code-block:: bash
 
-    {"config-file.json_url":"http://<machine_ip_addr>:5010/config-file.json"}
+    {"config-file.json_url":"http://<machine_ip_addr>:5010/config_files/config-file.json"}
     
 Running the ZTRAN xApp
 =======================
