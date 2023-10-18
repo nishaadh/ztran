@@ -156,7 +156,7 @@ Deploying the xApp
 
 .. code-block:: bash
 
-    curl -L -X POST "http://$KONG_PROXY:32080/onboard/api/v1/onboard/download" --header 'Content-Type: application/json' --data-binary "@nexran-onboard.url"
+    curl -L -X POST "http://$KONG_PROXY:32080/onboard/api/v1/onboard/download" --header 'Content-Type: application/json' --data-binary "@ztran-onboard.url"
     curl -L -X GET "http://$KONG_PROXY:32080/onboard/api/v1/charts"
     curl -L -X POST "http://$KONG_PROXY:32080/appmgr/ric/v1/xapps" --header 'Content-Type: application/json' --data-raw '{"xappName": "ztran"}'
 
