@@ -63,7 +63,7 @@ You need to follow Configuring the Nginx Server and Hosting Config Files portion
     cd ~/oaic/ztran  
     sudo docker build . -t xApp-registry.local:5008/ztran:0.1.0
 
-Paste the following in the ``nexran-onboard.url`` file. Substitue the ``<machine_ip_addr>`` with the IP address of your machine. You can find this out through ``ifconfig``.
+Paste the following in the ``ztran-onboard.url`` file. Substitue the ``<machine_ip_addr>`` with the IP address of your machine. You can find this out through ``ifconfig``.
 
 .. code-block:: bash
 
