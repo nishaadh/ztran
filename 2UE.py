@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: 2UE Flowgraph
+# Title: Multi UE Flowgraph
 # GNU Radio version: 3.8.1.0
 
 from distutils.version import StrictVersion
@@ -36,9 +36,9 @@ from gnuradio import qtgui
 class multi_ue(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "2UE Flowgraph")
+        gr.top_block.__init__(self, "Multi UE Flowgraph")
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("2UE Flowgraph")
+        self.setWindowTitle("Multi UE Flowgraph")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -87,13 +87,13 @@ class multi_ue(gr.top_block, Qt.QWidget):
         self.zeromq_req_source_1 = zeromq.req_source(gr.sizeof_gr_complex, 1, 'tcp://localhost:2000', 100, False, -1)
         self.zeromq_req_source_0_0 = zeromq.req_source(gr.sizeof_gr_complex, 1, 'tcp://localhost:2007', 100, False, -1)
         self.zeromq_req_source_0 = zeromq.req_source(gr.sizeof_gr_complex, 1, 'tcp://localhost:2010', 100, False, -1)
-        self.zeromq_rep_sink_1_1 = zeromq.rep_sink(gr.sizeof_gr_complex, 1, 'tcp://*:2400', 100, False, -1)
-        self.zeromq_rep_sink_1_0 = zeromq.rep_sink(gr.sizeof_gr_complex, 1, 'tcp://*:2300', 100, False, -1)
+        self.zeromq_rep_sink_1_0 = zeromq.rep_sink(gr.sizeof_gr_complex, 1, 'tcp://*:2400', 100, False, -1)
+        self.zeromq_rep_sink_1 = zeromq.rep_sink(gr.sizeof_gr_complex, 1, 'tcp://*:2300', 100, False, -1)
         self.zeromq_rep_sink_0 = zeromq.rep_sink(gr.sizeof_gr_complex, 1, 'tcp://*:2009', 100, False, -1)
         self.blocks_throttle_0_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
-        self.blocks_multiply_const_vxx_0_1_0 = blocks.multiply_const_cc(cell_gain1)
-        self.blocks_multiply_const_vxx_0_0_0 = blocks.multiply_const_cc(cell_gain0)
+        self.blocks_multiply_const_vxx_0_1 = blocks.multiply_const_cc(cell_gain0)
+        self.blocks_multiply_const_vxx_0_0_0 = blocks.multiply_const_cc(cell_gain1)
         self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_cc(cell_gain1)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(cell_gain0)
         self.blocks_add_xx_0 = blocks.add_vcc(1)
@@ -107,9 +107,9 @@ class multi_ue(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_xx_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.blocks_add_xx_0, 1))
         self.connect((self.blocks_multiply_const_vxx_0_0_0, 0), (self.zeromq_rep_sink_1_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0_1_0, 0), (self.zeromq_rep_sink_1_1, 0))
+        self.connect((self.blocks_multiply_const_vxx_0_1, 0), (self.zeromq_rep_sink_1, 0))
         self.connect((self.blocks_throttle_0, 0), (self.blocks_multiply_const_vxx_0_0_0, 0))
-        self.connect((self.blocks_throttle_0, 0), (self.blocks_multiply_const_vxx_0_1_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.blocks_multiply_const_vxx_0_1, 0))
         self.connect((self.blocks_throttle_0_0, 0), (self.zeromq_rep_sink_0, 0))
         self.connect((self.zeromq_req_source_0, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.zeromq_req_source_0_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))
@@ -146,7 +146,7 @@ class multi_ue(gr.top_block, Qt.QWidget):
     def set_cell_gain1(self, cell_gain1):
         self.cell_gain1 = cell_gain1
         self.blocks_multiply_const_vxx_0_0.set_k(self.cell_gain1)
-        self.blocks_multiply_const_vxx_0_1_0.set_k(self.cell_gain1)
+        self.blocks_multiply_const_vxx_0_0_0.set_k(self.cell_gain1)
 
     def get_cell_gain0(self):
         return self.cell_gain0
@@ -154,7 +154,7 @@ class multi_ue(gr.top_block, Qt.QWidget):
     def set_cell_gain0(self, cell_gain0):
         self.cell_gain0 = cell_gain0
         self.blocks_multiply_const_vxx_0.set_k(self.cell_gain0)
-        self.blocks_multiply_const_vxx_0_0_0.set_k(self.cell_gain0)
+        self.blocks_multiply_const_vxx_0_1.set_k(self.cell_gain0)
 
 
 
